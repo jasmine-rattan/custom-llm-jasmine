@@ -1,0 +1,12 @@
+# Corpus source files (do not publish raw text)
+corpus/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+starter_tmp/
