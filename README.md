@@ -30,7 +30,7 @@ I expect training loss to fall from ~4+ to roughly 2, and the model to produce s
 
 ## 2. My Run
 
-**Executed notebook:** [custom_llm.ipynb](custom_llm.ipynb) — all cell outputs visible, both experiments run sequentially.
+**Executed notebook:** [custom_llm.ipynb](custom_llm.ipynb) — shows Experiment 2 outputs in its cells (the notebook was downloaded after the final Experiment 2 run, so Colab's cells reflect that run: vocab=388, untrained 7/48, trained 24/48, chat with sparrow prompt). Experiment 1 evidence is fully preserved in [llm_runs/run_001/](llm_runs/run_001/) — all JSON files, model weights, eval results, and training curves are there.
 
 | Property | Experiment 1 (Starter) | Experiment 2 (Extended) |
 |---|---|---|
@@ -122,7 +122,9 @@ Full sample files: [llm_runs/run_001/samples/](llm_runs/run_001/samples/)
 
 ### Token → Embedding Trace
 
-**Word:** `customer` | **Token ID:** 28
+**Word:** `customer` | **Token ID:** 28 (Experiment 1 — 136-token vocabulary)
+
+Note: in Experiment 2 (388-token vocabulary) customer has a different ID (81) because the larger vocab reindexes all tokens. Both traces are valid; this one is from Experiment 1 where the token space is smaller and easier to inspect.
 
 | Stage | First 5 of 64 dimensions |
 |---|---|
@@ -166,6 +168,8 @@ Full temperature data: [llm_runs/run_001/temperature_comparison.json](llm_runs/r
 ## 4. My Fixed Language Evals — 4-Row Comparison Table
 
 Eval suite: [evals/language_evals.json](evals/language_evals.json) (unchanged) | Runner: [run_evals.py](run_evals.py)
+
+**Scoring rule:** For each of the 48 cases, the runner sends only the prompt prefix to the model (no answer choices, no answer key). It then looks up the next-token probability the model assigns to each of the 4 answer choices. Score = 1 if the correct choice has the strictly highest probability; score = 0 for a tie or wrong choice. Cases where any prompt word or answer-choice word is UNK (unknown to the model's vocabulary) are marked unscorable and count as 0 in the all-case success rate.
 
 The 48 eval cases are a **fixed panel** — the same cases are used in all four result sets to ensure direct comparability. The training and validation sets used for each eval panel are fixed (at most 20 documents each), keeping the comparison fair across experiments.
 
@@ -308,7 +312,7 @@ python run_evals.py --model llm_runs/run_002/model.pt
 python chat.py --model llm_runs/run_002/model.pt
 ```
 
-**Notebook:** Open `custom_llm.ipynb` in Google Colab. All cells should already have outputs from both experiments visible. Section 6b = untrained evals, Section 7 = training, Section 8b = trained evals, Section 9 = saved ZIP, Section 10 = chat.
+**Notebook:** Open `custom_llm.ipynb` in Google Colab. Cell outputs show Experiment 2 (the last run). Section 6b = untrained evals (7/48), Section 7 = training, Section 8b = trained evals (24/48), Section 9 = saved ZIP, Section 10 = chat (sparrow/salmon prompt). Experiment 1 evidence is in llm_runs/run_001/ — all files are complete and independently verify that run.
 
 **To run Experiment 2 from scratch:** After running Section 2 (which creates `/content/corpus/`), upload `negation_patterns.txt`, `categories_analogies.txt`, and `everyday_knowledge.txt` into that folder via the Colab Files sidebar, then click Run All.
 
