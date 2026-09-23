@@ -20,6 +20,8 @@ Trained a tiny nanoGPT language model on a classroom corpus, ran a fixed 48-case
   - `everyday_knowledge.txt` — ~30 sentences teaching common-sense facts (ice, umbrella, light in dark room)
 - I chose negation and categories/analogies because the eval suite has 6 cases directly testing those patterns, and both require vocabulary entirely absent from the starter corpus.
 
+**Corpus sources and permissions:** All three extension files (`negation_patterns.txt`, `categories_analogies.txt`, `everyday_knowledge.txt`) are original synthetic sentences written by me for this assignment. No external text was copied. The built-in classroom corpus is the starter repo's synthetic data. No copyright or licensing restrictions apply.
+
 **Prediction (written before training):**
 I expect training loss to fall from ~4+ to roughly 2, and the model to produce short plausible phrases from the classroom vocabulary. Extension categories like negation and analogies will score near 0 on the starter run since those words are not in the starter vocab. After extending the corpus, negation, categories/analogies, and everyday knowledge should improve because the model will have seen the required vocabulary and patterns. Grammar, reference, sequence, and spatial evals will likely remain near 0 without targeted examples. I expect 25–32/48 on the extended trained run vs 22/48 on the starter trained run.
 
@@ -46,6 +48,10 @@ I expect training loss to fall from ~4+ to roughly 2, and the model to produce s
 The vocabulary jumped from 136 to 388 types because our extension files introduced ~252 new word types (colors, animal names, category labels, everyday nouns). Parameters increased from 111,872 to 128,000 because the embedding table (vocab_size × 64) grew with the larger vocabulary.
 
 Config files: [run_001/config.json](llm_runs/run_001/config.json) | [run_002/config.json](llm_runs/run_002/config.json)
+
+Corpus manifests: [run_001/corpus_manifest.json](llm_runs/run_001/corpus_manifest.json) | [run_002/corpus_manifest.json](llm_runs/run_002/corpus_manifest.json)
+
+Vocabulary reports: [run_001/vocabulary_report.json](llm_runs/run_001/vocabulary_report.json) | [run_002/vocabulary_report.json](llm_runs/run_002/vocabulary_report.json)
 
 ---
 
@@ -140,14 +146,14 @@ Full temperature data: [llm_runs/run_001/temperature_comparison.json](llm_runs/r
 
 ## 4. My Fixed Language Evals — 4-Row Comparison Table
 
+The 48 eval cases are a **fixed panel** — the same cases are used in all four result sets to ensure direct comparability. The training and validation sets used for each eval panel are fixed (at most 20 documents each), keeping the comparison fair across experiments.
+
 | Experiment | Stage | Correct / 48 | Scorable / 48 | Accuracy (scorable) | Full results |
 |---|---|---|---|---|---|
-| Starter corpus | Untrained | 9 | 24 | 37.5% | [untrained](llm_runs/run_001/language_evals/untrained/) |
-| Starter corpus | Trained (5k steps) | 22 | 24 | **91.7%** | [final](llm_runs/run_001/language_evals/final/) |
-| Extended corpus | Untrained | 7 | 25 | 28.0% | [untrained](llm_runs/run_002/language_evals/untrained/) |
-| Extended corpus | Trained (5k steps) | 24 | 25 | **96.0%** | [final](llm_runs/run_002/language_evals/final/) |
-
-Comparison files: [run_001/language_eval_comparison.json](llm_runs/run_001/language_eval_comparison.json) | [run_002/language_eval_comparison.json](llm_runs/run_002/language_eval_comparison.json)
+| Starter corpus | Untrained | 9 | 24 | 37.5% | [run_001/language_eval_comparison.json](llm_runs/run_001/language_eval_comparison.json) |
+| Starter corpus | Trained (5k steps) | 22 | 24 | **91.7%** | [run_001/language_eval_comparison.json](llm_runs/run_001/language_eval_comparison.json) |
+| Extended corpus | Untrained | 7 | 25 | 28.0% | [run_002/language_eval_comparison.json](llm_runs/run_002/language_eval_comparison.json) |
+| Extended corpus | Trained (5k steps) | 24 | 25 | **96.0%** | [run_002/language_eval_comparison.json](llm_runs/run_002/language_eval_comparison.json) |
 
 ### Category breakdown — Extended trained (Experiment 2 final)
 
@@ -185,6 +191,8 @@ The one scorable negation case scored 0 — the model didn't successfully learn 
 ```bash
 python chat.py --model llm_runs/run_002/model.pt
 ```
+
+**Model used:** Experiment 2 trained model (`llm_runs/run_002/model.pt`), loaded via Section 10 of the notebook in Google Colab.
 
 **Chat transcript — Experiment 2 model (from [run_002/chat_transcript.json](llm_runs/run_002/chat_transcript.json)):**
 
