@@ -150,10 +150,10 @@ The 48 eval cases are a **fixed panel** — the same cases are used in all four 
 
 | Experiment | Stage | Correct / 48 | Scorable / 48 | Accuracy (scorable) | Full results |
 |---|---|---|---|---|---|
-| Starter corpus | Untrained | 9 | 24 | 37.5% | [run_001/language_eval_comparison.json](llm_runs/run_001/language_eval_comparison.json) |
-| Starter corpus | Trained (5k steps) | 22 | 24 | **91.7%** | [run_001/language_eval_comparison.json](llm_runs/run_001/language_eval_comparison.json) |
-| Extended corpus | Untrained | 7 | 25 | 28.0% | [run_002/language_eval_comparison.json](llm_runs/run_002/language_eval_comparison.json) |
-| Extended corpus | Trained (5k steps) | 24 | 25 | **96.0%** | [run_002/language_eval_comparison.json](llm_runs/run_002/language_eval_comparison.json) |
+| Starter corpus | Untrained | 9 | 24 | 37.5% | [eval_summary](llm_runs/run_001/language_evals/untrained/eval_summary.json) · [eval_results.csv](llm_runs/run_001/language_evals/untrained/eval_results.csv) |
+| Starter corpus | Trained (5k steps) | 22 | 24 | **91.7%** | [eval_summary](llm_runs/run_001/language_evals/final/eval_summary.json) · [eval_results.csv](llm_runs/run_001/language_evals/final/eval_results.csv) |
+| Extended corpus | Untrained | 7 | 25 | 28.0% | [eval_summary](llm_runs/run_002/language_evals/untrained/eval_summary.json) · [eval_results.csv](llm_runs/run_002/language_evals/untrained/eval_results.csv) |
+| Extended corpus | Trained (5k steps) | 24 | 25 | **96.0%** | [eval_summary](llm_runs/run_002/language_evals/final/eval_summary.json) · [eval_results.csv](llm_runs/run_002/language_evals/final/eval_results.csv) |
 
 ### Category breakdown — Extended trained (Experiment 2 final)
 
