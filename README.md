@@ -18,9 +18,10 @@ Trained a tiny nanoGPT language model on a classroom corpus, ran a fixed 48-case
   - `negation_patterns.txt` — ~50 sentences teaching "X is not A. X is B." correction using colors and objects
   - `categories_analogies.txt` — ~50 sentences teaching category membership (robin→bird, salmon→fish, kitten→cat, apple→fruit)
   - `everyday_knowledge.txt` — ~30 sentences teaching common-sense facts (ice, umbrella, light in dark room)
-- I chose negation and categories/analogies because the eval suite has 6 cases directly testing those patterns, and both require vocabulary entirely absent from the starter corpus.
+- I chose negation and categories/analogies because the eval suite has 6 cases directly testing those patterns, and both require vocabulary entirely absent from the starter corpus. The 3 extension TXT files added 228 new unique passages (negation: 80 unique, categories/analogies: 88 unique, everyday_knowledge: 60 unique), raising total unique passages from 4,592 to 4,820.
+- `LEARNING_RATE = 0.001` with warmup + cosine decay built in. Too large a learning rate causes the optimizer's steps to overshoot the loss minimum — the loss oscillates or diverges instead of converging. Too small a learning rate makes weight updates imperceptibly small, requiring far more steps to converge and risking getting stuck in plateaus.
 
-**Corpus sources and permissions:** All three extension files (`negation_patterns.txt`, `categories_analogies.txt`, `everyday_knowledge.txt`) are original synthetic sentences written by me for this assignment. No external text was copied. The built-in classroom corpus is the starter repo's synthetic data. No copyright or licensing restrictions apply.
+**Corpus sources and permissions:** All three extension files (`negation_patterns.txt`, `categories_analogies.txt`, `everyday_knowledge.txt`) are original synthetic sentences written by me for this assignment. No external text was copied. The built-in classroom corpus is the starter repo's synthetic data. No copyright or licensing restrictions apply. All files are UTF-8 TXT — no PDF extraction was performed and no extraction warnings appear (`"warnings": []` for all three files in `corpus_manifest.json`).
 
 **Prediction (written before training):**
 I expect training loss to fall from ~4+ to roughly 2, and the model to produce short plausible phrases from the classroom vocabulary. Extension categories like negation and analogies will score near 0 on the starter run since those words are not in the starter vocab. After extending the corpus, negation, categories/analogies, and everyday knowledge should improve because the model will have seen the required vocabulary and patterns. Grammar, reference, sequence, and spatial evals will likely remain near 0 without targeted examples. I expect 25–32/48 on the extended trained run vs 22/48 on the starter trained run.
@@ -52,6 +53,8 @@ Config files: [run_001/config.json](llm_runs/run_001/config.json) | [run_002/con
 Training summaries: [run_001/training_summary.json](llm_runs/run_001/training_summary.json) | [run_002/training_summary.json](llm_runs/run_002/training_summary.json)
 
 Training loss CSVs: [run_001/training.csv](llm_runs/run_001/training.csv) | [run_002/training.csv](llm_runs/run_002/training.csv)
+
+**What stayed fixed, what changed:** The corpus, eval suite (48 cases), random seed (42), eval panel sizes (20 train / 20 validation documents), and generation settings (temperature 0.8, max_tokens 24, seed 2026) stayed fixed throughout. The model's weights changed during training — each step updated all 111,872 (or 128,000) parameters via AdamW. Temperature is inference-only: it rescales logits before sampling and does not touch any weights.
 
 Corpus manifests: [run_001/corpus_manifest.json](llm_runs/run_001/corpus_manifest.json) | [run_002/corpus_manifest.json](llm_runs/run_002/corpus_manifest.json)
 
@@ -114,6 +117,8 @@ the consumer compared the merchandise after checking the price .
 **Final (step 5,000):** "our school has a question about the new educator and lesson . a review of risk helped us understand the different investment . the report about the car explains the journey in detail . the consumer compared the offering after checking the price ."
 
 Full sample files: [llm_runs/run_001/samples/](llm_runs/run_001/samples/)
+
+**Visible change:** The untrained model (step 0) produces incoherent token sequences — no sentence structure, no domain associations, words appear in random order. By step 2,500 every generated sentence is grammatically correct with proper domain word pairings (car→journey, consumer→merchandise, risk→investment). The model learned classroom sentence templates and domain co-occurrences from the 4,132 training passages.
 
 ### Token → Embedding Trace
 
