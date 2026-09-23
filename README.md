@@ -133,7 +133,7 @@ Note: in Experiment 2 (388-token vocabulary) customer has a different ID (81) be
 
 Full 64-dimensional vectors before and after: [llm_runs/run_001/checkpoint.json](llm_runs/run_001/checkpoint.json)
 
-Before training, the embedding is random noise — every token is about equally likely to follow "the customer" (probabilities ~0.007 each across 136 tokens). After training, the model assigns high probability to semantically related words: `selected` 17.5%, `ordered` 17.2%, `compared` 16.3%, `recommended` 16.3%, `returned` 15.5%. The embedding shifted in the 64D space to encode "customer" as something that precedes transactional action words.
+Before training, the embedding is random noise — every token is about equally likely to follow "the customer" (probabilities ~0.007 each across 136 tokens). After training, the model assigns high probability to semantically related words: `store` 17.5%, `ordered` 17.2%, `compared` 16.3%, `recommended` 16.3%, `returned` 15.5%. The embedding shifted in the 64D space to encode "customer" as something that precedes transactional action words.
 
 Source: [llm_runs/run_001/inspection.json](llm_runs/run_001/inspection.json) | [llm_runs/run_001/tokenization.json](llm_runs/run_001/tokenization.json)
 
