@@ -49,9 +49,17 @@ The vocabulary jumped from 136 to 388 types because our extension files introduc
 
 Config files: [run_001/config.json](llm_runs/run_001/config.json) | [run_002/config.json](llm_runs/run_002/config.json)
 
+Training summaries: [run_001/training_summary.json](llm_runs/run_001/training_summary.json) | [run_002/training_summary.json](llm_runs/run_002/training_summary.json)
+
+Training loss CSVs: [run_001/training.csv](llm_runs/run_001/training.csv) | [run_002/training.csv](llm_runs/run_002/training.csv)
+
 Corpus manifests: [run_001/corpus_manifest.json](llm_runs/run_001/corpus_manifest.json) | [run_002/corpus_manifest.json](llm_runs/run_002/corpus_manifest.json)
 
 Vocabulary reports: [run_001/vocabulary_report.json](llm_runs/run_001/vocabulary_report.json) | [run_002/vocabulary_report.json](llm_runs/run_002/vocabulary_report.json)
+
+The model caps vocabulary at the 509 most frequent training token types. Experiment 1 used only 136 types and Experiment 2 used 388 types — both are well under the 509 limit, so no words were dropped to UNK during training. All domain words that mattered for the starter-pattern evals were retained.
+
+The 90/10 split is by individual short passage (≤47 tokens), not by source file. This means passages from the same source file can appear in both training and validation sets. The validation loss therefore measures whether the model generalizes to held-out sentence instances from the same templates — not to entirely unseen source documents.
 
 ---
 
@@ -95,7 +103,13 @@ The untrained loss for Experiment 2 starts higher (5.94 vs 4.93) because the voc
 
 **Untrained (step 0):** random word soup — "professor bond doctor course harvest team physician journey checking buyer delivery traffic report the lecturer item offering and system…"
 
-**Halfway (step 2,500):** coherent classroom sentences — training loss 0.68, val loss 0.70. Model generating plausible domain phrases.
+**Halfway (step 2,500):** coherent classroom sentences — training loss 0.68, val loss 0.70:
+```
+we learned about the local platform during a discussion of code .
+a review of risk helped us understand the different deposit .
+the report about the car explains the journey in detail .
+the consumer compared the merchandise after checking the price .
+```
 
 **Final (step 5,000):** "our school has a question about the new educator and lesson . a review of risk helped us understand the different investment . the report about the car explains the journey in detail . the consumer compared the offering after checking the price ."
 
@@ -146,14 +160,27 @@ Full temperature data: [llm_runs/run_001/temperature_comparison.json](llm_runs/r
 
 ## 4. My Fixed Language Evals — 4-Row Comparison Table
 
+Eval suite: [evals/language_evals.json](evals/language_evals.json) (unchanged) | Runner: [run_evals.py](run_evals.py)
+
 The 48 eval cases are a **fixed panel** — the same cases are used in all four result sets to ensure direct comparability. The training and validation sets used for each eval panel are fixed (at most 20 documents each), keeping the comparison fair across experiments.
 
-| Experiment | Stage | Correct / 48 | Scorable / 48 | Accuracy (scorable) | Full results |
-|---|---|---|---|---|---|
-| Starter corpus | Untrained | 9 | 24 | 37.5% | [eval_summary](llm_runs/run_001/language_evals/untrained/eval_summary.json) · [eval_results.csv](llm_runs/run_001/language_evals/untrained/eval_results.csv) |
-| Starter corpus | Trained (5k steps) | 22 | 24 | **91.7%** | [eval_summary](llm_runs/run_001/language_evals/final/eval_summary.json) · [eval_results.csv](llm_runs/run_001/language_evals/final/eval_results.csv) |
-| Extended corpus | Untrained | 7 | 25 | 28.0% | [eval_summary](llm_runs/run_002/language_evals/untrained/eval_summary.json) · [eval_results.csv](llm_runs/run_002/language_evals/untrained/eval_results.csv) |
-| Extended corpus | Trained (5k steps) | 24 | 25 | **96.0%** | [eval_summary](llm_runs/run_002/language_evals/final/eval_summary.json) · [eval_results.csv](llm_runs/run_002/language_evals/final/eval_results.csv) |
+| Experiment | Stage | Correct / 48 | Scorable / 48 | Coverage | Accuracy (scorable) | Full results |
+|---|---|---|---|---|---|---|
+| Starter corpus | Untrained | 9 | 24 | 50.0% | 37.5% | [eval_summary](llm_runs/run_001/language_evals/untrained/eval_summary.json) · [eval_results.csv](llm_runs/run_001/language_evals/untrained/eval_results.csv) |
+| Starter corpus | Trained (5k steps) | 22 | 24 | 50.0% | **91.7%** | [eval_summary](llm_runs/run_001/language_evals/final/eval_summary.json) · [eval_results.csv](llm_runs/run_001/language_evals/final/eval_results.csv) |
+| Extended corpus | Untrained | 7 | 25 | 52.1% | 28.0% | [eval_summary](llm_runs/run_002/language_evals/untrained/eval_summary.json) · [eval_results.csv](llm_runs/run_002/language_evals/untrained/eval_results.csv) |
+| Extended corpus | Trained (5k steps) | 24 | 25 | 52.1% | **96.0%** | [eval_summary](llm_runs/run_002/language_evals/final/eval_summary.json) · [eval_results.csv](llm_runs/run_002/language_evals/final/eval_results.csv) |
+
+### Free continuations vs. multiple-choice score
+
+The eval runner does two separate things per case: (1) picks the highest-probability word among 4 choices (the multiple-choice score), and (2) generates an unrestricted free continuation. These can differ. Example from Experiment 1 trained:
+
+| Case | Prompt | MC selection (score) | Free continuation |
+|---|---|---|---|
+| lang_01 | "the report about the customer explains the" | service ✓ (1) | "service in detail ." |
+| lang_02 | "the report about the merchandise explains the" | quality ✓ (1) | "delivery in detail ." |
+
+In lang_02, the MC answer is "quality" (highest probability among the 4 given choices), but the free continuation starts with "delivery" — because without the constraint of 4 choices, "delivery" has a higher unconditional probability than "quality". The free continuations are saved in the `generated_text` column of every `eval_results.csv` above.
 
 ### Category breakdown — Extended trained (Experiment 2 final)
 
@@ -180,6 +207,10 @@ The 48 eval cases are a **fixed panel** — the same cases are used in all four 
 The one scorable negation case scored 0 — the model didn't successfully learn the negation correction pattern, responding "return ." to the prompt "the apple is not blue. the apple is" in the chat test. This is honest: adding 50 sentences is not enough to teach a 111K-parameter model to resolve multi-sentence negation.
 
 **Eval separation:** [run_001/eval_separation.json](llm_runs/run_001/eval_separation.json) | [run_002/eval_separation.json](llm_runs/run_002/eval_separation.json) — both clean. No eval prompt strings appear in either corpus.
+
+How eval prompts were kept out of training: (1) the notebook automatically removes all synthetic classroom sentences that contain any reserved test prefix before splitting or building vocabulary; (2) `CORPUS_FOLDER` is pointed at `corpus/` only — never at `evals/` or the project root; (3) chat transcripts are saved separately and were never added to corpus files; (4) answer choices and answer keys are never sent to the model during inference — only the prompt prefix is sent.
+
+**Limits of exact-match leakage checks:** `eval_separation.json` only catches verbatim test prefixes. It would not catch paraphrased versions of test items, manually copied answer lists, or semantically similar wording. These tests are a public development benchmark — they guided my choice of extension categories — so they cannot be treated as a fully unseen final benchmark regardless of leakage checks.
 
 ---
 
