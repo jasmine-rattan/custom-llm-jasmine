@@ -159,7 +159,7 @@ The raw gradient × LR would be only 6.9e−09 — but AdamW normalizes by the g
 | 0.8 (default) | "our school has a question about the new educator and lesson ." | "a review of risk helped us understand the different investment ." |
 | 1.2 (creative) | "our school has a question about the new educator and lesson ." | "a review of risk helped us understand the different investment ." |
 
-No weights changed between these samples — temperature only rescales logits before softmax. At this range (0.3–1.2), the trained model is so confident in its classroom templates that outputs are very similar. The first sample is identical across all temperatures because it's the highest-probability continuation. At temperature 1.5+ the outputs become noticeably more chaotic.
+All three rows used the same starting token and the same sampling seed (seed 2026), so differences are solely due to temperature. No weights changed between these samples — temperature only rescales logits before softmax. At this range (0.3–1.2), the trained model is so confident in its classroom templates that outputs are very similar. The first sample is identical across all temperatures because it's the highest-probability continuation. At temperature 1.5+ the outputs become noticeably more chaotic.
 
 Full temperature data: [llm_runs/run_001/temperature_comparison.json](llm_runs/run_001/temperature_comparison.json)
 
@@ -303,10 +303,10 @@ cd custom-llm-jasmine
 pip install -r requirements.txt
 
 # 3. Run evals on starter trained model (Experiment 1)
-python run_evals.py --model llm_runs/run_001/model.pt
+python run_evals.py --model llm_runs/run_001/model.pt --output llm_runs/run_001_rerun/
 
 # 4. Run evals on extended trained model (Experiment 2)
-python run_evals.py --model llm_runs/run_002/model.pt
+python run_evals.py --model llm_runs/run_002/model.pt --output llm_runs/run_002_rerun/
 
 # 5. Launch chat with extended model
 python chat.py --model llm_runs/run_002/model.pt
