@@ -194,6 +194,8 @@ python chat.py --model llm_runs/run_002/model.pt
 
 **Model used:** Experiment 2 trained model (`llm_runs/run_002/model.pt`), loaded via Section 10 of the notebook in Google Colab.
 
+![Chat interface — Section 10 in Colab](chatInteractionScreenshot.png)
+
 **Chat transcript — Experiment 2 model (from [run_002/chat_transcript.json](llm_runs/run_002/chat_transcript.json)):**
 
 ```
