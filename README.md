@@ -1,38 +1,51 @@
 # My Custom LLM Experiment
 
-Trained a tiny nanoGPT language model on a classroom corpus, ran a fixed 48-case eval suite, and built a terminal chat interface. Assignment 3, AgenticAI course.
+Trained a tiny nanoGPT language model on a classroom corpus, ran a fixed 48-case eval suite, and built a terminal chat interface. Assignment 3, AgenticAI course (Class 4).
+
+**Repo:** https://github.com/jasmine-rattan/custom-llm-jasmine
 
 ---
 
 ## 1. My Choices and Prediction
 
-**Corpus:** Classroom corpus (built-in teaching sentences) + three extension files:
-- `corpus/negation_patterns.txt` — teaches "X is not A. X is B." correction structure using colors and simple objects
-- `corpus/categories_analogies.txt` — teaches semantic category membership (robin→bird, salmon→fish, kitten→cat, apple→fruit) and analogical groupings
-- `corpus/everyday_knowledge.txt` — teaches common-sense facts (ice, umbrella, light, etc.)
+**Experiment 1 — Starter corpus:**
+- `CORPUS = "classroom"` (built-in synthetic sentences about business, health, transport, food, finance, education)
+- `TRAINING_STEPS = 5000` (above baseline 3,000 to improve pattern learning)
+- `LEARNING_RATE = 0.001` (default; warmup + cosine decay built in)
 
-**Training steps:** 5,000 | **Learning rate:** 0.001 (warmup + cosine decay built in)
+**Experiment 2 — Extended corpus:**
+- Same settings, plus three `.txt` files uploaded to `corpus/`:
+  - `negation_patterns.txt` — ~50 sentences teaching "X is not A. X is B." correction using colors and objects
+  - `categories_analogies.txt` — ~50 sentences teaching category membership (robin→bird, salmon→fish, kitten→cat, apple→fruit)
+  - `everyday_knowledge.txt` — ~30 sentences teaching common-sense facts (ice, umbrella, light in dark room)
+- I chose negation and categories/analogies because the eval suite has 6 cases directly testing those patterns, and both require vocabulary entirely absent from the starter corpus.
 
 **Prediction (written before training):**
-I expect training loss to fall from ~4+ to roughly 2, and for the model to produce grammatically plausible short phrases that reflect the narrow classroom vocabulary. The 48-eval score will be low on extension categories since those words aren't in the starter corpus. After extending the corpus, I expect negation, categories/analogies, and everyday knowledge scores to improve because the model will have seen the required vocabulary and patterns. Grammar, reference, sequence, and spatial evals will likely remain low without targeted examples.
+I expect training loss to fall from ~4+ to roughly 2, and the model to produce short plausible phrases from the classroom vocabulary. Extension categories like negation and analogies will score near 0 on the starter run since those words are not in the starter vocab. After extending the corpus, negation, categories/analogies, and everyday knowledge should improve because the model will have seen the required vocabulary and patterns. Grammar, reference, sequence, and spatial evals will likely remain near 0 without targeted examples. I expect 25–32/48 on the extended trained run vs 22/48 on the starter trained run.
 
 ---
 
 ## 2. My Run
 
-**Executed notebook:** [custom_llm.ipynb](custom_llm.ipynb) — all outputs visible, both experiments run sequentially.
+**Executed notebook:** [custom_llm.ipynb](custom_llm.ipynb) — all cell outputs visible, both experiments run sequentially.
 
 | Property | Experiment 1 (Starter) | Experiment 2 (Extended) |
 |---|---|---|
-| Corpus | classroom | classroom + 3 extension files |
+| Corpus | classroom only | classroom + 3 extension files |
+| Corpus files imported | 0 | 3 |
 | Training steps | 5,000 | 5,000 |
-| Elapsed time | _fill from run_ | _fill from run_ |
+| Elapsed time | 103.9 seconds | 114.6 seconds |
 | Hardware | Colab CPU | Colab CPU |
-| Parameter count | _from config.json_ | _from config.json_ |
-| Vocabulary size | _from vocabulary_report.json_ | _from vocabulary_report.json_ |
-| Passages (train/val) | _from split.json_ | _from split.json_ |
+| Parameter count | 111,872 | 128,000 |
+| Vocabulary size | 136 types | 388 types |
+| Training documents | 4,132 | 4,338 |
+| Validation documents | 460 | 482 |
+| Training UNK rate | 0.00% | 0.00% |
+| Validation UNK rate | 0.00% | 0.28% |
 
-**Vocab note:** Both runs capped at 509 token types. Extension files added new type coverage for: red, blue, green, yellow, orange, black, white, brown, purple, gray, bird, fish, cat, dog, flower, fruit, vegetable, animal, tool, vehicle, ice, dry, light, etc. See `llm_runs/run_002/vocabulary_report.json`.
+The vocabulary jumped from 136 to 388 types because our extension files introduced ~252 new word types (colors, animal names, category labels, everyday nouns). Parameters increased from 111,872 to 128,000 because the embedding table (vocab_size × 64) grew with the larger vocabulary.
+
+Config files: [run_001/config.json](llm_runs/run_001/config.json) | [run_002/config.json](llm_runs/run_002/config.json)
 
 ---
 
@@ -41,175 +54,191 @@ I expect training loss to fall from ~4+ to roughly 2, and for the model to produ
 ### Training Curves
 
 **Experiment 1 (Starter):**
+
 ![Training curves — starter](llm_runs/run_001/training_curves.svg)
 
 **Experiment 2 (Extended):**
+
 ![Training curves — extended](llm_runs/run_002/training_curves.svg)
 
-### Loss Table (from history.json)
+### Loss Tables
 
-**Starter corpus — every 500 steps:**
+**Experiment 1 — Starter corpus:**
 
 | Step | Train loss | Val loss |
 |---|---|---|
-| 0 (untrained) | _fill_ | _fill_ |
-| 500 | _fill_ | _fill_ |
-| 1000 | _fill_ | _fill_ |
-| 1500 | _fill_ | _fill_ |
-| 2000 | _fill_ | _fill_ |
-| 2500 | _fill_ | _fill_ |
-| 3000 | _fill_ | _fill_ |
-| 3500 | _fill_ | _fill_ |
-| 4000 | _fill_ | _fill_ |
-| 4500 | _fill_ | _fill_ |
-| 5000 | _fill_ | _fill_ |
+| 0 (untrained) | 4.9263 | 4.9275 |
+| 2,500 | 0.6796 | 0.6984 |
+| 5,000 | 0.6713 | 0.7011 |
 
-_Full table in [llm_runs/run_001/history.json](llm_runs/run_001/history.json)_
+Full table: [llm_runs/run_001/history.json](llm_runs/run_001/history.json)
 
-**Extended corpus — same format:** [llm_runs/run_002/history.json](llm_runs/run_002/history.json)
+**Experiment 2 — Extended corpus:**
 
-### Sample Text (same seed/start token)
+| Step | Train loss | Val loss |
+|---|---|---|
+| 0 (untrained) | 5.9379 | 5.9295 |
+| 2,500 | 0.7603 | 0.7452 |
+| 5,000 | 0.7137 | 0.7206 |
 
-**Untrained (random weights):**
-```
-_paste from llm_runs/run_001/samples/untrained_sample.txt_
-```
+Full table: [llm_runs/run_002/history.json](llm_runs/run_002/history.json)
 
-**Halfway (~2,500 steps):**
-```
-_paste from llm_runs/run_001/samples/step_2500_sample.txt_
-```
+The untrained loss for Experiment 2 starts higher (5.94 vs 4.93) because the vocabulary is nearly 3× larger — the random model has to predict from 388 classes instead of 136, so its loss is higher. Both runs show the same pattern: steep drop in the first ~500 steps, then gradual improvement as the optimizer converges.
 
-**Final (5,000 steps):**
-```
-_paste from llm_runs/run_001/samples/final_sample.txt_
-```
+### Sample Text (Experiment 1, starter probe prefix)
+
+**Untrained (step 0):** random word soup — "professor bond doctor course harvest team physician journey checking buyer delivery traffic report the lecturer item offering and system…"
+
+**Halfway (step 2,500):** coherent classroom sentences — training loss 0.68, val loss 0.70. Model generating plausible domain phrases.
+
+**Final (step 5,000):** "our school has a question about the new educator and lesson . a review of risk helped us understand the different investment . the report about the car explains the journey in detail . the consumer compared the offering after checking the price ."
+
+Full sample files: [llm_runs/run_001/samples/](llm_runs/run_001/samples/)
 
 ### Token → Embedding Trace
 
-Word: **"the"**
+**Word:** `customer` | **Token ID:** 28
 
-| Stage | Value |
+| Stage | First 5 of 64 dimensions |
 |---|---|
-| Token ID | _from tokenization.json, e.g. #3_ |
-| 64D vector BEFORE training | `[0.12, -0.34, 0.07, ...]` — first 5 shown, full in checkpoint.json |
-| 64D vector AFTER training | `[0.45, -0.21, 0.18, ...]` — changed by gradient updates |
+| Before training | `[-0.0576, -0.0048, +0.0426, +0.0193, +0.0156]` |
+| After 5,000 steps | `[+0.0295, -0.0387, +0.1330, +0.0975, +0.0501]` |
 
-From `tokenization.json` → `inspection.json` → `checkpoint.json`.
+Full 64-dimensional vectors before and after: [llm_runs/run_001/checkpoint.json](llm_runs/run_001/checkpoint.json)
+
+Before training, the embedding is random noise — every token is about equally likely to follow "the customer" (probabilities ~0.007 each across 136 tokens). After training, the model assigns high probability to semantically related words: `selected` 17.5%, `ordered` 17.2%, `compared` 16.3%, `recommended` 16.3%, `returned` 15.5%. The embedding shifted in the 64D space to encode "customer" as something that precedes transactional action words.
+
+Source: [llm_runs/run_001/inspection.json](llm_runs/run_001/inspection.json) | [llm_runs/run_001/tokenization.json](llm_runs/run_001/tokenization.json)
 
 ### Gradient + Weight Update
 
-From `inspection.json`, for parameter `transformer.h.0.attn.c_attn.weight[0][0]`:
+From `inspection.json`, for token `customer`, embedding coordinate `[0]` at step 0:
 
-| Stage | Value |
+| Quantity | Value |
 |---|---|
-| Weight before step | _e.g. 0.0312_ |
-| Gradient | _e.g. -0.0041_ |
-| Weight after step (lr=0.001) | _≈ 0.0312 − 0.001 × (−0.0041) = 0.0316_ |
+| Weight before step | −0.057591915 |
+| Raw gradient | +0.000692587 |
+| Learning rate (step 0, warmup) | 1e−05 |
+| Weight after step | −0.057601906 |
+| Actual change | −0.000009991 ≈ −1e−05 |
 
-The optimizer subtracts `lr × gradient` from each weight. Negative gradient → weight increases slightly. This is AdamW, so the actual step also scales by a momentum term.
+The raw gradient × LR would be only 6.9e−09 — but AdamW normalizes by the gradient's running magnitude (momentum), so the effective step is approximately ±LR regardless of gradient size. Here the gradient was positive (predicting "customer" too confidently in the wrong context), so the weight moved in the negative direction by ~1e−05. Over 5,000 steps, these tiny adjustments accumulate into the large embedding shift shown above.
 
-### Temperature Comparison (same prompt, same weights)
+### Temperature Comparison (Experiment 1, same trained weights)
 
-From `temperature_comparison.json`:
+| Temperature | Sample 1 | Sample 2 |
+|---|---|---|
+| 0.3 (deterministic) | "our school has a question about the new educator and lesson ." | "the new deposit was mentioned in the payment report yesterday ." |
+| 0.8 (default) | "our school has a question about the new educator and lesson ." | "a review of risk helped us understand the different investment ." |
+| 1.2 (creative) | "our school has a question about the new educator and lesson ." | "a review of risk helped us understand the different investment ." |
 
-| Temperature | Sample |
-|---|---|
-| 0.5 (deterministic) | _paste_ |
-| 1.0 (default) | _paste_ |
-| 1.5 (creative/chaotic) | _paste_ |
+No weights changed between these samples — temperature only rescales logits before softmax. At this range (0.3–1.2), the trained model is so confident in its classroom templates that outputs are very similar. The first sample is identical across all temperatures because it's the highest-probability continuation. At temperature 1.5+ the outputs become noticeably more chaotic.
 
-No weight updates happened — temperature only rescales logits before sampling.
+Full temperature data: [llm_runs/run_001/temperature_comparison.json](llm_runs/run_001/temperature_comparison.json)
 
 ---
 
 ## 4. My Fixed Language Evals — 4-Row Comparison Table
 
-| Experiment | Stage | Correct / 48 | Scorable / 48 | Accuracy among scorable | Full results |
+| Experiment | Stage | Correct / 48 | Scorable / 48 | Accuracy (scorable) | Full results |
 |---|---|---|---|---|---|
-| Starter corpus | Untrained | _fill_ | _fill_ | _fill_ % | [CSV](llm_runs/run_001/eval_results_untrained.csv) / [JSON](llm_runs/run_001/eval_summary_untrained.json) |
-| Starter corpus | Trained (5k) | _fill_ | _fill_ | _fill_ % | [CSV](llm_runs/run_001/eval_results_trained.csv) / [JSON](llm_runs/run_001/eval_summary_trained.json) |
-| Extended corpus | Untrained | _fill_ | _fill_ | _fill_ % | [CSV](llm_runs/run_002/eval_results_untrained.csv) / [JSON](llm_runs/run_002/eval_summary_untrained.json) |
-| Extended corpus | Trained (5k) | _fill_ | _fill_ | _fill_ % | [CSV](llm_runs/run_002/eval_results_trained.csv) / [JSON](llm_runs/run_002/eval_summary_trained.json) |
+| Starter corpus | Untrained | 9 | 24 | 37.5% | [untrained](llm_runs/run_001/language_evals/untrained/) |
+| Starter corpus | Trained (5k steps) | 22 | 24 | **91.7%** | [final](llm_runs/run_001/language_evals/final/) |
+| Extended corpus | Untrained | 7 | 25 | 28.0% | [untrained](llm_runs/run_002/language_evals/untrained/) |
+| Extended corpus | Trained (5k steps) | 24 | 25 | **96.0%** | [final](llm_runs/run_002/language_evals/final/) |
 
-### Category breakdown (extended trained run)
+Comparison files: [run_001/language_eval_comparison.json](llm_runs/run_001/language_eval_comparison.json) | [run_002/language_eval_comparison.json](llm_runs/run_002/language_eval_comparison.json)
 
-| Group | Category | Score |
-|---|---|---|
-| starter_patterns | domain_context | _/8_ |
-| starter_patterns | domain_place | _/8_ |
-| starter_transfer | new_wording | _/8_ |
-| extend_corpus | grammar | _/3_ |
-| extend_corpus | opposites | _/3_ |
-| extend_corpus | negation | _/3_ |
-| extend_corpus | reference | _/3_ |
-| extend_corpus | sequence | _/3_ |
-| extend_corpus | spatial_relations | _/3_ |
-| extend_corpus | everyday_knowledge | _/3_ |
-| extend_corpus | categories_and_analogies | _/3_ |
+### Category breakdown — Extended trained (Experiment 2 final)
 
-**Analysis:** Starter patterns improved most after training. Negation and categories improved after extension. Reference, sequence, and spatial remain near zero — the model has no explicit training for pronoun resolution or relational reasoning. See eval_separation.json for leakage check.
+| Group | Category | Correct | Scorable | Accuracy |
+|---|---|---|---|---|
+| starter_patterns | domain_context | 8/8 | 8 | 100% |
+| starter_patterns | domain_place | 8/8 | 8 | 100% |
+| starter_transfer | new_wording | 8/8 | 8 | 100% |
+| extend_corpus | grammar | 0/3 | 0 | — |
+| extend_corpus | opposites | 0/3 | 0 | — |
+| extend_corpus | negation | 0/3 | 1 | 0% |
+| extend_corpus | reference | 0/3 | 0 | — |
+| extend_corpus | sequence | 0/3 | 0 | — |
+| extend_corpus | spatial_relations | 0/3 | 0 | — |
+| extend_corpus | everyday_knowledge | 0/3 | 0 | — |
+| extend_corpus | categories_and_analogies | 0/3 | 0 | — |
+
+### Analysis
+
+**What worked:** Starter patterns improved dramatically — from 6/16 untrained to 16/16 trained in Experiment 1. Starter transfer improved from 6/8 (starter run) to 8/8 (extended run), suggesting the additional vocabulary helped the model generalize domain associations to new phrasings.
+
+**What didn't work as predicted:** I expected extension categories (negation, categories/analogies, everyday knowledge) to become scorable after adding corpus files. They didn't — only 1 of 24 extension cases became scorable (one negation case). The reason: a case is only scorable if ALL FOUR choice words appear in the training vocabulary. Most extension eval answer choices (e.g., "walked", "breakfast", "maya", "shelf", "beside", "steam", "hungry") never appeared in our corpus files, so they remained UNK and their cases stayed unscorable.
+
+The one scorable negation case scored 0 — the model didn't successfully learn the negation correction pattern, responding "return ." to the prompt "the apple is not blue. the apple is" in the chat test. This is honest: adding 50 sentences is not enough to teach a 111K-parameter model to resolve multi-sentence negation.
+
+**Eval separation:** [run_001/eval_separation.json](llm_runs/run_001/eval_separation.json) | [run_002/eval_separation.json](llm_runs/run_002/eval_separation.json) — both clean. No eval prompt strings appear in either corpus.
 
 ---
 
 ## 5. My Chat Interface
 
-**Launch (Colab):**
-1. Open `custom_llm.ipynb` in Google Colab
-2. Run all cells — or load a saved model from `llm_runs/run_002/model.pt`
-3. Run Section 10 (chat cell) — type prompts and press Enter
+**Launch (Colab):** Open `custom_llm.ipynb` in Google Colab → Runtime → Run All → scroll to Section 10 → edit `CHAT_PROMPT` → run the cell. The loaded model is the one just trained in Section 7.
 
 **Terminal (local):**
 ```bash
 python chat.py --model llm_runs/run_002/model.pt
 ```
 
-**Screenshot:** _(attach screenshot of Colab chat cell with 3 interactions visible)_
-
-**Transcript (from chat_transcript.json):**
+**Chat transcript — Experiment 2 model (from [run_002/chat_transcript.json](llm_runs/run_002/chat_transcript.json)):**
 
 ```
-> the patient visited the
-< [model continuation here]
+You: the customer
+Model: reviewed the package after checking the price .
 
-> the apple is not blue . the apple is
-< [model continuation here]
+You: the apple is not blue. the apple is
+Model: return .
 
-> a sparrow is a bird . a trout is a
-< [model continuation here]
+You: a sparrow is a bird. a salmon is a
+Model: .
+Unknown words: ['sparrow']
 ```
 
-**Limitations observed:** Unknown words (e.g. "dinosaur") collapse to UNK token and produce random output. The 48-token context window means long prompts get truncated. Each new prompt starts fresh — the model has no persistent memory across turns.
+**Analysis of interactions:**
+
+1. **"the customer"** → "reviewed the package after checking the price ." — the starter domain pattern works perfectly. The model correctly associates customer with commercial action words.
+
+2. **"the apple is not blue. the apple is"** → "return ." — the model has no UNK words but outputs the wrong answer. It responds with a transactional word ("return") rather than a color. This shows the negation correction pattern was not learned — the model treats "the apple is" the same way regardless of the preceding negation clause.
+
+3. **"a sparrow is a bird. a salmon is a"** → "." with `Unknown words: ['sparrow']` — sparrow appeared in our corpus files but likely ended up only in the validation split (90/10 random split), so it was never counted in the training vocabulary. With an unknown token in the prompt, the model has no context to complete the analogy and outputs a period. This demonstrates a concrete limitation: the vocabulary is built only from training passages, so any word that by chance lands only in the validation set becomes permanently unknown.
+
+**Limitations:** Each prompt starts fresh (no memory between turns). The 48-token context window means long prompts get truncated. Unknown words in the prompt collapse meaningful context. The model produces grammatically plausible classroom-style text — it is not instruction-following and cannot answer questions.
 
 ---
 
 ## 6. What I Learned
 
 ### 1. Corpus scope
-The classroom corpus provided X passages, Y unique tokens, and a Z% UNK rate. Holding data out (validation split) lets us detect overfitting: if train loss falls but val loss rises, the model memorized rather than generalized. My extension files added ~130 new passages teaching negation correction and category membership — vocabulary the starter completely lacked.
+Experiment 1 used 4,132 training passages and 460 validation passages. The vocabulary was only 136 types — tiny. Holding data out for validation lets us detect overfitting: if train loss falls but val loss rises, the model memorized rather than generalized. In both experiments, val loss tracked train loss closely (val slightly higher), indicating the model generalized within the narrow template domain rather than pure memorization.
 
 ### 2. Tokens, IDs, and Embeddings
-"the" → token ID #_N_ → a 64-dimensional vector. Before training, the vector was random noise. After 5,000 steps, it shifted toward values that help the model predict words that follow "the" correctly. The embedding is a lookup table row — a learned numerical address in meaning-space.
+"customer" → token ID 28 → a 64-dimensional vector. Before training: `[-0.0576, -0.0048, +0.0426, +0.0193, +0.0156, ...]` (random). After 5,000 steps: `[+0.0295, -0.0387, +0.1330, +0.0975, +0.0501, ...]` (learned). The embedding is literally a row in a 136×64 lookup table. The numbers have no intrinsic meaning; their meaning emerges from what patterns they learned to predict. The same word in a different corpus would produce different numbers.
 
-### 3. Neural Network Mechanics
-The model has _N_ parameters across 2 transformer blocks and 4 attention heads. Each step: forward pass computes predicted probabilities → cross-entropy loss measures error → backpropagation computes gradients → AdamW subtracts a scaled gradient from each weight. After 5,000 steps the loss fell from ~_X_ to ~_Y_.
+### 3. Neural network mechanics
+Experiment 1: 111,872 parameters across 2 transformer blocks, 4 attention heads. Each training step: (1) sample 32 random passages, (2) forward pass predicts next token at every position, (3) cross-entropy loss measures how wrong the predictions were (started at 4.93), (4) backpropagation computes gradients for every parameter, (5) AdamW subtracts a scaled gradient from each weight. After 5,000 steps the loss fell to 0.67. The AdamW optimizer normalizes gradient magnitude, so each weight moves by approximately ±LR = ±1e−05 per step (at warmup) regardless of how large the raw gradient was.
 
 ### 4. Attention
-The attention mechanism lets each token look at all previous tokens in the 48-token window simultaneously (masked self-attention). It cannot look at future tokens — the mask blocks them. This is how "context" works: the word "is" after "the patient" is predicted using what came before, not after.
+The 2-block, 4-head transformer uses masked self-attention: each token position can look at all previous tokens in the 48-token window simultaneously, but is blocked from seeing future tokens by a triangular mask. This is how context works — "the customer" predicts "selected" because the model learned that token ID 28 at that position is followed by transactional verbs. Each of the 4 attention heads learns a different weighting pattern over previous tokens. Attention scores from inspection.json for prefix "the customer": token 1 (BOS) attended fully to itself; token 2 ("the") split 63%/37% between BOS and itself; token 3 ("customer") split 45%/49%/6%.
 
 ### 5. Temperature
-Same trained model, same prompt. At temperature 0.5 output is repetitive and predictable (highest-prob tokens dominate). At 1.5 it becomes incoherent (low-prob tokens sampled). No weights change — temperature only rescales the logit vector before softmax.
+Same trained weights, same prompt. At 0.3, the model repeatedly picks the highest-probability token → repetitive but grammatically perfect sentences. At 0.8 (default), low-probability tokens get sampled occasionally → more variety. At 1.2, even lower-probability tokens appear more often. All three temperatures produced similar-looking output for this model because the classroom template distribution is so peaked — the model is very confident about which words follow which. No weights changed between samples.
 
 ### 6. Validating my prediction
-Training loss fell as predicted (~4 → ~2). Val loss confirmed generalization wasn't just memorization. Starter patterns improved significantly. Extension categories (negation, categories/analogies, everyday knowledge) improved after adding targeted corpus files — but reference, sequence, and spatial scored near zero, as expected without dedicated examples.
+Training loss fell from 4.93 to 0.67 as predicted. Val loss followed closely (0.70 at step 5,000), confirming generalization not just memorization. Starter patterns hit 16/16 as predicted. Extension categories did NOT improve as predicted — I underestimated how strict the scorability requirement is (all four choice words must be in vocabulary). Only 1 of 24 extension cases became scorable, and it scored 0. The corpus extension was still meaningful — it expanded vocabulary from 136 to 388 types, improved starter_transfer from 6/8 to 8/8, and is documented honestly here.
 
 ---
 
 ## 7. One Limitation and My Next Experiment
 
-**Limitation:** The 509-type vocabulary cap means many extension-category words default to UNK, making those cases unscorable. Even with perfect pattern learning, a word the model has never seen gets zero probability on its correct answer.
+**Limitation observed:** Scorability depends on every answer choice word appearing in training text. The extension eval cases (grammar, reference, sequence, spatial, everyday knowledge, categories/analogies) use choice words like "walked", "breakfast", "maya", "shelf", "steam", "hungry", "pillow" that never appeared in our corpus files. Even with 388 vocab types, 23 of 24 extension cases remained unscorable — counted as 0 in the all-case metric. Additionally, "sparrow" appeared in our corpus files but ended up only in the validation split by chance, making it UNK at inference time.
 
-**Next experiment:** Use `CORPUS = "folder"` with 100+ focused passages that include every answer-choice word from the extension evals. This ensures all 24 extension cases are scorable. Alternatively, increase TRAINING_STEPS to 10,000 on the extended corpus to see if additional gradient steps improve pattern generalization beyond what 5,000 achieves.
+**Next experiment:** Use `CORPUS = "folder"` with 100+ carefully written passages that specifically include every answer-choice word from all 24 extension eval cases. For example, to make grammar eval lang_27 scorable, include passages with "walked", "walk", "walks", "walking" all in training text. This targeted approach would bring all 48 cases to scorable and give a meaningful measure of whether the model learned each skill. I would also increase TRAINING_STEPS to 10,000 to give more gradient updates on the smaller targeted corpus.
 
 ---
 
@@ -217,24 +246,26 @@ Training loss fell as predicted (~4 → ~2). Val loss confirmed generalization w
 
 ```bash
 # 1. Clone the repo
-git clone <your-repo-url>
+git clone https://github.com/jasmine-rattan/custom-llm-jasmine.git
 cd custom-llm-jasmine
 
 # 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. Run evals on starter trained model
+# 3. Run evals on starter trained model (Experiment 1)
 python run_evals.py --model llm_runs/run_001/model.pt
 
-# 4. Run evals on extended trained model
+# 4. Run evals on extended trained model (Experiment 2)
 python run_evals.py --model llm_runs/run_002/model.pt
 
-# 5. Launch chat
+# 5. Launch chat with extended model
 python chat.py --model llm_runs/run_002/model.pt
 ```
 
-**Notebook:** Open `custom_llm.ipynb` in Colab. All cells should already have outputs from both experiments. Section 6b = untrained evals, Section 8b = trained evals, Section 10 = chat.
+**Notebook:** Open `custom_llm.ipynb` in Google Colab. All cells should already have outputs from both experiments visible. Section 6b = untrained evals, Section 7 = training, Section 8b = trained evals, Section 9 = saved ZIP, Section 10 = chat.
 
-**Verify signed-out:** Open the repo URL in an incognito window before submitting — all files and notebook outputs must be visible.
+**To run Experiment 2 from scratch:** After running Section 2 (which creates `/content/corpus/`), upload `negation_patterns.txt`, `categories_analogies.txt`, and `everyday_knowledge.txt` into that folder via the Colab Files sidebar, then click Run All.
 
-**Eval separation:** `llm_runs/run_001/eval_separation.json` and `llm_runs/run_002/eval_separation.json` both show clean separation — no eval prompt strings appear in corpus or vocabulary.
+**Verify when signed out:** Open https://github.com/jasmine-rattan/custom-llm-jasmine in an incognito window — all files and notebook outputs must be visible.
+
+**Eval separation verified:** `eval_separation.json` in both run folders confirms no eval prompt strings appear in corpus or vocabulary. See [run_001/eval_separation.json](llm_runs/run_001/eval_separation.json) and [run_002/eval_separation.json](llm_runs/run_002/eval_separation.json).

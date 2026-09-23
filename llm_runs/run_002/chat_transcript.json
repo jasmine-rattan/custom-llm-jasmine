@@ -1,0 +1,32 @@
+{
+  "model_sha256": "3e2826be1f17649903a002487e8f10824971d8ad13c48d7da997f1a5d10b04fe",
+  "completed_steps": 5000,
+  "fresh_context_per_prompt": true,
+  "temperature": 0.8,
+  "max_tokens": 24,
+  "turns": [
+    {
+      "prompt": "the customer",
+      "seed": 2026,
+      "response": "reviewed the package after checking the price .",
+      "unknown_prompt_words": [],
+      "prompt_truncated": false
+    },
+    {
+      "prompt": "the apple is not blue. the apple is",
+      "seed": 2027,
+      "response": "return .",
+      "unknown_prompt_words": [],
+      "prompt_truncated": false
+    },
+    {
+      "prompt": "a sparrow is a bird. a salmon is a",
+      "seed": 2028,
+      "response": ".",
+      "unknown_prompt_words": [
+        "sparrow"
+      ],
+      "prompt_truncated": false
+    }
+  ]
+}

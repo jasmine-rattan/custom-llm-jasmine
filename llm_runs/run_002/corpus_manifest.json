@@ -1,0 +1,43 @@
+{
+  "files": [
+    {
+      "file": "categories_analogies.txt",
+      "bytes": 2374,
+      "sha256": "f16b738cb1fef4472af6418e73d0d57aead918ea5bdfea80e4351f8aa5410280",
+      "warnings": [],
+      "characters": 2374,
+      "passages": 100,
+      "unique_passages": 88,
+      "preview": "a sparrow is a bird . birds can fly .\na sparrow is a bird . a crow is also a bird .\na crow is a bird . a hawk is also a bird .\na hawk is a bird . a parrot is also a bird .\na parrot is a bird . a dove is also a bird .\na dove is a bird . birds have feathers .\na robin is a bird . birds sing songs .\na r"
+    },
+    {
+      "file": "everyday_knowledge.txt",
+      "bytes": 1845,
+      "sha256": "d9ed6133701fc99587aff813137c64b6fab71f3b086ebec333c59250fcf89477",
+      "warnings": [],
+      "characters": 1845,
+      "passages": 60,
+      "unique_passages": 60,
+      "preview": "when water gets very cold it turns to ice . ice is frozen water .\nice melts back into water when it warms up . water and ice are the same substance .\nfire gives off heat and light . fire burns things .\nsnow falls in winter . snow is cold and white .\nrain comes from clouds . rain makes things wet .\nt"
+    },
+    {
+      "file": "negation_patterns.txt",
+      "bytes": 2734,
+      "sha256": "5d09cb0d8a338e89cad1c59dac229fb5a8ea10db2b420fa57a9db308ff12a2c4",
+      "warnings": [],
+      "characters": 2734,
+      "passages": 112,
+      "unique_passages": 80,
+      "preview": "the wall is not green . the wall is white .\nthe wall is white . the color of the wall is white .\nthe car is not yellow . the car is red .\nthe car is red . the color of the car is red .\nthe ball is not white . the ball is orange .\nthe ball is orange . the color of the ball is orange .\nthe hat is not "
+    }
+  ],
+  "ignored": [],
+  "external_passages": 272,
+  "mode": "classroom",
+  "base_passages": 6200,
+  "unique_passages": 4820,
+  "new_unique_passages": 228,
+  "duplicates_removed": 1652,
+  "max_passage_tokens": 47,
+  "split_unit": "deduplicated passage, not source file"
+}
